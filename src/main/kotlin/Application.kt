@@ -1,7 +1,5 @@
 import com.google.gson.Gson
-import com.google.gson.JsonElement
-import com.google.gson.JsonObject
-import com.google.gson.JsonParser
+import domain.BodyParser
 import io.ktor.application.call
 import io.ktor.client.HttpClient
 import io.ktor.client.request.header
@@ -10,7 +8,6 @@ import io.ktor.client.request.url
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receiveText
-import io.ktor.response.respond
 import io.ktor.response.respondText
 import io.ktor.routing.get
 import io.ktor.routing.post
@@ -19,7 +16,6 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import java.io.File
 import java.nio.file.Paths
-import java.util.*
 
 data class Body(val challenge: String)
 data class SlackPostMessage(val channel: String, val text: String)
@@ -40,15 +36,15 @@ fun main(args: Array<String>) {
 //                call.respond(Gson().toJson(jsonObject))
 //            }
             post("/") {
-                val requestBody = call.receiveText()
-                if (getValueOf(requestBody, "event", "bot_id").isPresent) {
+                val bodyParser = BodyParser(call.receiveText())
+                if (bodyParser.getValueOf("event", "bot_id") != null) {
                     return@post
                 }
 
-                println(getValueOf(requestBody, "event", "text").get())
+                val text = bodyParser.getValueOf("event", "text")
 
                 val message =
-                    SlackPostMessage(channel = "C011J0E62TF", text = getValueOf(requestBody, "event", "text").get())
+                    SlackPostMessage(channel = "C011J0E62TF", text = text ?: "텍스트가 없습니다")
 
                 val key = File(Paths.get("src", "main", "resources", "key.txt").toUri())
                     .readLines()
@@ -66,17 +62,4 @@ fun main(args: Array<String>) {
             }
         }
     }.start(wait = true)
-}
-
-fun getValueOf(body: String, vararg keys: String): Optional<String> {
-    val parser = JsonParser()
-    var element: JsonElement = parser.parse(body)
-    for (key in keys) {
-        val jsonObject = element.asJsonObject
-        if (!jsonObject.has(key)) {
-            return Optional.empty()
-        }
-        element = jsonObject[key]
-    }
-    return Optional.of(element.asString)
 }
