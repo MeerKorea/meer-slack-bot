@@ -30,6 +30,15 @@ fun main(args: Array<String>) {
             get("/") {
                 call.respondText("My Example Blog", ContentType.Text.Html)
             }
+            // for verify
+//            post("/") {
+//                val receiveParameters = call.receiveText()
+//                val challenge = Gson().fromJson(receiveParameters, Body::class.java).challenge
+//
+//                val jsonObject = JsonObject()
+//                jsonObject.addProperty("challenge", challenge)
+//                call.respond(Gson().toJson(jsonObject))
+//            }
             post("/") {
                 val requestBody = call.receiveText()
                 if (getValueOf(requestBody, "event", "bot_id").isPresent) {
@@ -55,15 +64,6 @@ fun main(args: Array<String>) {
 
                 call.response.status(HttpStatusCode.OK)
             }
-//            // for verify
-//            post("/") {
-//                val receiveParameters = call.receiveText()
-//                val challenge = Gson().fromJson(receiveParameters, Body::class.java).challenge
-//
-//                val jsonObject = JsonObject()
-//                jsonObject.addProperty("challenge", challenge)
-//                call.respond(Gson().toJson(jsonObject))
-//            }
         }
     }.start(wait = true)
 }
