@@ -25,8 +25,9 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     compile "io.ktor:ktor-server-netty:$ktor_version"
     compile "com.google.code.gson:gson:2.8.5"
-    testCompile('org.junit.jupiter:junit-jupiter:5.6.0')
-    testCompile('org.assertj:assertj-core:3.15.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.1.1'
+    testCompile("org.assertj:assertj-core:3.11.1")
     implementation("io.ktor:ktor-client-cio:$ktor_version")
 }
 
