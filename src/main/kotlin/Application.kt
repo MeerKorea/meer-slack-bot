@@ -1,4 +1,5 @@
 import com.google.gson.Gson
+import com.google.gson.JsonObject
 import domain.BodyParser
 import io.ktor.application.call
 import io.ktor.client.HttpClient
@@ -8,6 +9,7 @@ import io.ktor.client.request.url
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receiveText
+import io.ktor.response.respond
 import io.ktor.response.respondText
 import io.ktor.routing.get
 import io.ktor.routing.post
@@ -43,17 +45,19 @@ fun main(args: Array<String>) {
 
                 val text = bodyParser.getValueOf("event", "text")
 
+                val channel = File(Paths.get("src", "main", "resources", "channel.txt").toUri())
+                    .readLines()[0]
                 val message =
-                    SlackPostMessage(channel = "C011J0E62TF", text = text ?: "텍스트가 없습니다")
+                    SlackPostMessage(channel = channel, text = text ?: "텍스트가 없습니다")
 
                 val key = File(Paths.get("src", "main", "resources", "key.txt").toUri())
-                    .readLines()
+                    .readLines()[0]
 
                 println("key" + key[0])
                 val client = HttpClient()
                 client.post<Unit> {
                     header("Content-Type", "application/json")
-                    header("Authorization", key[0])
+                    header("Authorization", key)
                     url("https://slack.com/api/chat.postMessage")
                     body = Gson().toJson(message)
                 }
